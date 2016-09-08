@@ -1,0 +1,22 @@
+/u/Stuck_in_the_Matrix's BigQuery example: top 100 distinctive words in /r/conspiracy, from https://www.reddit.com/r/TheoryOfReddit/comments/4ejr9f/top_100_words_that_appear_in_rconspiracy_that/
+
+SELECT word, s_count, s_ratio, g_count, g_ratio, s_to_g_ratio, ROUND(weight,2) FROM (
+SELECT s.word word, s.c s_count, ROUND(s.ratio,4) s_ratio, g.c g_count, ROUND(g.ratio,4) g_ratio,ROUND(s.ratio/g.ratio,2) s_to_g_ratio, ROUND(s.ratio/g.ratio,2) * s.c weight  FROM 
+(SELECT c, word, ssum, (c/ssum)*100 ratio FROM
+(SELECT c,word, sum(c) over () as ssum FROM 
+(SELECT count(*) c, word FROM 
+(SELECT REGEXP_EXTRACT(word,r'([a-z0-9\-\']*)') word FROM 
+(SELECT SPLIT(lower(body),' ') word FROM [pushshift:rt_reddit.comments@-604800000-] WHERE lower(subreddit)="conspiracy"))
+GROUP BY word))) s
+JOIN EACH
+(SELECT c, word, gsum, (c/gsum)*100 ratio FROM 
+(SELECT c,word, sum(c) over () as gsum FROM 
+(SELECT count(*) c, word FROM 
+(SELECT REGEXP_EXTRACT(word,r'([a-z0-9\-\']*)') word FROM 
+(SELECT SPLIT(lower(body),' ') word FROM [pushshift:rt_reddit.comments@-604800000-]))
+GROUP BY word))) g
+ON g.word = s.word
+WHERE s.word NOT IN ('gt','lt','amp')
+)
+WHERE s_to_g_ratio > 5
+ORDER BY s_ratio DESC;
