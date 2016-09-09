@@ -8,3 +8,4 @@ traffic stats
 
 Resources: 
 https://gitlab.com/SirNeon/SubredditAnalysis/tree/master
+http://minimaxir.com/2016/05/reddit-graph/
