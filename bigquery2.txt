@@ -1,0 +1,21 @@
+select
+  domain(url) domain,
+  sum(score) sum_score,
+  count(1) count_rows
+from
+  [fh-bigquery:reddit_posts.2016_01],
+  [fh-bigquery:reddit_posts.2016_02],
+  [fh-bigquery:reddit_posts.2016_03],
+  [fh-bigquery:reddit_posts.2016_04],
+  [fh-bigquery:reddit_posts.2016_05],
+  [fh-bigquery:reddit_posts.2016_06],
+  [fh-bigquery:reddit_posts.2016_07],
+  [fh-bigquery:reddit_posts.2016_08]
+where
+  lower(subreddit) in ('transhuman', 'cyberpunk', 'singularity', 'transhumanism', 'nootropics', 'futureporn', 'cyborgs', 'longevity', 'singularitynetwork')
+group by
+  domain
+order by
+  count_rows desc
+limit
+  25
